@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+<head>
+	<title>Metalearning Demo</title>
+	<link href="css/semantic.css" rel="stylesheet" type="text/css" />
+	<style type="text/css">
+		body {
+			font-family: sans-serif;
+		}
+		#grid {
+			display: grid;
+			grid-gap: 50px;
+			grid-template-columns: 1fr 400px 400px 200px 1fr;
+			grid-template-rows: 60px 400px;
+			grid-template-areas:
+				". inputs inputs inputs ."
+				". prediction loss options ."
+			;
+		}
+		#inputs {
+			grid-area: inputs;
+			/*background-color: red;*/
+		}
+		#inputs #equation{
+			margin-top: -30px;
+			margin-left: auto;
+			margin-right: auto;
+			padding: 0px;
+			width: 45%;
+		}
+		#inputs h1 {
+			display: inline-block;
+		}
+		#inputs input {
+			width: 50px;
+			padding: 5px;
+		}
+		#inputs button {
+			margin: 50px;
+		}
+		#prediction {
+			grid-area: prediction;
+			/*background-color: green;*/
+		}
+		#loss {
+			grid-area: loss;
+			/*background-color: blue;*/
+		}
+		#options {
+			grid-area: options;
+			/*background-color: orange;*/
+		}
+		#options .slider {
+			margin: 15px;
+		}
+		#options .toggle {
+			margin: 15px;
+			margin-top: 30px;
+		}
+		#options .input {
+			padding: 15px;
+		}
+		#options input {
+			width: 50px;
+		}
+		#loading-screen {
+			z-index: 1000;
+		}
+	</style>
+	
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="javascript/semantic.js" type="text/javascript"></script>
+<script src="./dist/build.js"></script>
+</head>
+
+<body>
+
+<div class="ui large message" id="description" >
+	<b>Metalearning Demo</b>
+</div>
+
+<div id='interface'>
+	<component :is="view" ></component>
+</div>
+
+<template id="main-template">
+<div id="grid">
+	<div class="ui active inverted dimmer" v-if="loading" id="loading-screen">
+		<div class="ui massive indeterminate text loader">
+			Loading data...
+		</div>
+	</div>
+	<div id="inputs">
+		<div id="equation">
+			<h1 class="ui">y = </h1>
+			&nbsp;
+			<div class="ui huge input">
+				<input type="text" v-model="amplitude">
+			</div>
+			&nbsp;
+			<h1 class="ui">sin(x + </h1>
+			&nbsp;
+			<div class="ui huge input">
+				<input type="text" v-model="phase">
+			</div>
+			&nbsp;
+			<h1 class="ui">)</h1>
+			<button class="ui button huge blue" @click="test()">
+				Test
+			</button>
+		</div>
+	</div>
+	<div id="prediction">
+		<canvas id="prediction-graph" width="400" height="400"></canvas>
+	</div>
+	<div id="loss">
+		<canvas id="loss-graph" width="400" height="400"></canvas>
+	</div>
+	<div id="options">
+		<div class="ui slider checkbox" v-for="algo in algorithms">
+			<input type="checkbox" v-model="show[algo]">
+			<label>{{ get_name(algo) }}</label>
+		</div>
+		<div class="ui toggle checkbox">
+			<input type="checkbox" v-model="play">
+			<label>Loop</label>
+		</div>
+		<div class="ui labeled input">
+			<div class="ui label">
+				Gradient Step
+			</div>
+			<input type="text" v-model="n_step">
+		</div>
+	</div>
+</div>
+</template>
+
+
+</body>
+
+</html>

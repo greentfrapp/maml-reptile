@@ -1,0 +1,266 @@
+---
+swagger: "2.0"
+info:
+  description: "Metalearning Demo"
+  version: "0.1"
+  title: "Metalearning Demo API"
+  contact:
+    email: "limsweekiat@gmail.com"
+host: "localhost:8080"
+basePath: "/v0.1"
+tags:
+- name: "meta"
+  description: "Endpoints for Metalearning Demo"
+schemes:
+- "http"
+paths:
+  /train:
+    post:
+      tags:
+      - "meta"
+      summary: "Single step of gradient descent"
+      description: "Single step of gradient descent"
+      operationId: "step"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "task"
+        description: "Sine Task Parameters"
+        required: true
+        schema:
+          $ref: "#/definitions/task"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/predictions"
+      x-swagger-router-controller: "swagger_server.controllers.meta_controller"
+definitions:
+  predictions:
+    type: "object"
+    properties:
+      datapoints:
+        type: "array"
+        items:
+          $ref: "#/definitions/predictions_datapoints"
+      evaluation:
+        type: "array"
+        items:
+          $ref: "#/definitions/predictions_datapoints"
+      losses:
+        $ref: "#/definitions/predictions_losses"
+      predictions:
+        $ref: "#/definitions/predictions_predictions"
+    example:
+      evaluation:
+      - x: 0.80082819046101150206595775671303272247314453125
+        y: 6.02745618307040320615897144307382404804229736328125
+      - x: 0.80082819046101150206595775671303272247314453125
+        y: 6.02745618307040320615897144307382404804229736328125
+      datapoints:
+      - x: 0.80082819046101150206595775671303272247314453125
+        y: 6.02745618307040320615897144307382404804229736328125
+      - x: 0.80082819046101150206595775671303272247314453125
+        y: 6.02745618307040320615897144307382404804229736328125
+      losses:
+        maml:
+        - x: 0.80082819046101150206595775671303272247314453125
+          y: 6.02745618307040320615897144307382404804229736328125
+        - x: 0.80082819046101150206595775671303272247314453125
+          y: 6.02745618307040320615897144307382404804229736328125
+        reptile9:
+        - x: 0.80082819046101150206595775671303272247314453125
+          y: 6.02745618307040320615897144307382404804229736328125
+        - x: 0.80082819046101150206595775671303272247314453125
+          y: 6.02745618307040320615897144307382404804229736328125
+        fomaml:
+        - x: 0.80082819046101150206595775671303272247314453125
+          y: 6.02745618307040320615897144307382404804229736328125
+        - x: 0.80082819046101150206595775671303272247314453125
+          y: 6.02745618307040320615897144307382404804229736328125
+        baseline:
+        - x: 0.80082819046101150206595775671303272247314453125
+          y: 6.02745618307040320615897144307382404804229736328125
+        - x: 0.80082819046101150206595775671303272247314453125
+          y: 6.02745618307040320615897144307382404804229736328125
+        reptile0:
+        - x: 0.80082819046101150206595775671303272247314453125
+          y: 6.02745618307040320615897144307382404804229736328125
+        - x: 0.80082819046101150206595775671303272247314453125
+          y: 6.02745618307040320615897144307382404804229736328125
+      predictions:
+        maml:
+        - - "{}"
+          - "{}"
+        - - "{}"
+          - "{}"
+        reptile9:
+        - - "{}"
+          - "{}"
+        - - "{}"
+          - "{}"
+        fomaml:
+        - - "{}"
+          - "{}"
+        - - "{}"
+          - "{}"
+        baseline:
+        - - "{}"
+          - "{}"
+        - - "{}"
+          - "{}"
+        reptile0:
+        - - "{}"
+          - "{}"
+        - - "{}"
+          - "{}"
+  task:
+    type: "object"
+    properties:
+      amplitude:
+        type: "number"
+      phase:
+        type: "number"
+  predictions_datapoints:
+    properties:
+      x:
+        type: "number"
+      y:
+        type: "number"
+    example:
+      x: 0.80082819046101150206595775671303272247314453125
+      y: 6.02745618307040320615897144307382404804229736328125
+  predictions_losses:
+    properties:
+      baseline:
+        type: "array"
+        items:
+          $ref: "#/definitions/predictions_datapoints"
+      maml:
+        type: "array"
+        items:
+          $ref: "#/definitions/predictions_datapoints"
+      fomaml:
+        type: "array"
+        items:
+          $ref: "#/definitions/predictions_datapoints"
+      reptile0:
+        type: "array"
+        items:
+          $ref: "#/definitions/predictions_datapoints"
+      reptile9:
+        type: "array"
+        items:
+          $ref: "#/definitions/predictions_datapoints"
+    example:
+      maml:
+      - x: 0.80082819046101150206595775671303272247314453125
+        y: 6.02745618307040320615897144307382404804229736328125
+      - x: 0.80082819046101150206595775671303272247314453125
+        y: 6.02745618307040320615897144307382404804229736328125
+      reptile9:
+      - x: 0.80082819046101150206595775671303272247314453125
+        y: 6.02745618307040320615897144307382404804229736328125
+      - x: 0.80082819046101150206595775671303272247314453125
+        y: 6.02745618307040320615897144307382404804229736328125
+      fomaml:
+      - x: 0.80082819046101150206595775671303272247314453125
+        y: 6.02745618307040320615897144307382404804229736328125
+      - x: 0.80082819046101150206595775671303272247314453125
+        y: 6.02745618307040320615897144307382404804229736328125
+      baseline:
+      - x: 0.80082819046101150206595775671303272247314453125
+        y: 6.02745618307040320615897144307382404804229736328125
+      - x: 0.80082819046101150206595775671303272247314453125
+        y: 6.02745618307040320615897144307382404804229736328125
+      reptile0:
+      - x: 0.80082819046101150206595775671303272247314453125
+        y: 6.02745618307040320615897144307382404804229736328125
+      - x: 0.80082819046101150206595775671303272247314453125
+        y: 6.02745618307040320615897144307382404804229736328125
+  predictions_predictions:
+    properties:
+      baseline:
+        type: "array"
+        items:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              x:
+                type: "number"
+              y:
+                type: "number"
+      maml:
+        type: "array"
+        items:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              x:
+                type: "number"
+              y:
+                type: "number"
+      fomaml:
+        type: "array"
+        items:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              x:
+                type: "number"
+              y:
+                type: "number"
+      reptile0:
+        type: "array"
+        items:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              x:
+                type: "number"
+              y:
+                type: "number"
+      reptile9:
+        type: "array"
+        items:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              x:
+                type: "number"
+              y:
+                type: "number"
+    example:
+      maml:
+      - - "{}"
+        - "{}"
+      - - "{}"
+        - "{}"
+      reptile9:
+      - - "{}"
+        - "{}"
+      - - "{}"
+        - "{}"
+      fomaml:
+      - - "{}"
+        - "{}"
+      - - "{}"
+        - "{}"
+      baseline:
+      - - "{}"
+        - "{}"
+      - - "{}"
+        - "{}"
+      reptile0:
+      - - "{}"
+        - "{}"
+      - - "{}"
+        - "{}"
