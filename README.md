@@ -56,4 +56,4 @@ Wait for the following message to appear:
 * Running on http://0.0.0.0:8080/ (Press CTRL+C to quit)
 ```
 
-Then click on Test. Wait for the data to load then toggle the options on the right side to show/hide the algorithms. Enable Loop to see how the learned functions change with each iteration. Disable Loop and enter a Gradient Step to see a specific iteration [0 - 32].
+Then click on Test. Wait for the data to load then toggle the options on the right side to show/hide the algorithms. Enable Loop to see how the learned functions change with each iteration. Disable Loop and enter a Gradient Step to see a specific iteration [0 - 32]. You can also change the amplitude and phase of the test task and hit Test again.
