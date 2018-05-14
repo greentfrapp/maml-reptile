@@ -99,7 +99,6 @@ class MAMLModel(object):
 			fast_weights = dict(zip(fast_weights.keys(), [weight - self.inner_lr * grads[key] for key, weight in fast_weights.items()]))
 			self.eval_outputs.append(self.forwardprop(self.eval_inputs, fast_weights))
 		output = self.forwardprop(self.inputs, fast_weights)
-		# self.eval_outputs.append(self.forwardprop(self.eval_inputs, weights))
 		loss = tf.losses.mean_squared_error(self.labels / self.task_amplitude, output / self.task_amplitude)
 		self.loss = loss
 		self.output = output

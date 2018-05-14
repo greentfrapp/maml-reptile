@@ -26,25 +26,27 @@ if __name__ == "__main__":
 		}
 		sess.run(tf.global_variables_initializer())
 		saver = tf.train.Saver()
+		saver.restore(sess, save_path="./temp/")
 		
-		losses = {
-			"maml": [],
-			"fomamlv1": [],
-			"fomamlv2": [],
-			"reptile": [],
-		}
-		for i in np.arange(episodes):
-			task = task_dist.new_task()
-			x, y = task.next(k * 3)
-			for model_name, model in models.items():
-				losses[model_name].append(float(model.train(x=x, y=y, amplitude=task.amplitude)))
-		saver.save(sess, save_path="./temp/")
-		with open("./temp/losses.json", 'w') as file:
-			json.dump(losses, file)
+		# losses = {
+		# 	"maml": [],
+		# 	"fomamlv1": [],
+		# 	"fomamlv2": [],
+		# 	"reptile": [],
+		# }
+		# for i in np.arange(episodes):
+		# 	task = task_dist.new_task()
+		# 	x, y = task.next(k * 3)
+		# 	for model_name, model in models.items():
+		# 		losses[model_name].append(float(model.train(x=x, y=y, amplitude=task.amplitude)))
+		# saver.save(sess, save_path="./temp/")
+		# with open("./temp/losses.json", 'w') as file:
+		# 	json.dump(losses, file)
 
-		n_tests = 100
+		n_tests = 1
 		mean_losses = {}
-		outputs = {}
+		preoutputs = {}
+		postoutputs = {}
 		for i in np.arange(n_tests):
 			print("Testing with Task #{}".format(i + 1))
 			test = task_dist.new_task()
@@ -55,20 +57,34 @@ if __name__ == "__main__":
 					mean_losses[model_name] = []
 				model_loss, model_output = model.test(x=x, y=y, test_x=eval_x, test_y=eval_y, amplitude=test.amplitude)
 				mean_losses[model_name].append(model_loss)
-				outputs[model_name] = model_output[-1]
+				preoutputs[model_name] = model_output[0]
+				postoutputs[model_name] = model_output[-1]
 		for model_name, mean_loss in mean_losses.items():
 			mean_losses[model_name] = np.mean(mean_loss, axis=0)
 
+		# Loss Plot
 		fig, ax = plt.subplots()
 		for model_name, mean_loss in mean_losses.items():
 			ax.plot(np.arange(grad_steps), mean_loss, label=model_name)
 		ax.legend()
+		ax.set_title("Losses")
 
+		# Pretraining Function
 		fig, ax2 = plt.subplots()
 		ax2.scatter(x, y)
 		ax2.plot(eval_x, eval_y, label="Truth")
-		for model_name, model_output in outputs.items():
+		for model_name, model_output in preoutputs.items():
 			ax2.plot(eval_x, model_output, label=model_name)
 		ax2.legend()
+		ax2.set_title("Before Training")
+
+		# Posttraining Function
+		fig, ax3 = plt.subplots()
+		ax3.scatter(x, y)
+		ax3.plot(eval_x, eval_y, label="Truth")
+		for model_name, model_output in postoutputs.items():
+			ax3.plot(eval_x, model_output, label=model_name)
+		ax3.legend()
+		ax3.set_title("After Training")
 
 		plt.show()
