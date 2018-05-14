@@ -101,11 +101,14 @@ class FOMAMLModel(object):
 
 	def train(self, x, y, amplitude):
 		self.sess.run(self.copy_meta_to_learner)
-		print("Meta-training FOMAML {} Task #{}...".format(self.name, self.sess.run(self.ep)))
 		self.fit(x=x, y=y, amplitude=amplitude)
-		print(self.sess.run(self.loss, feed_dict={self.inputs: x, self.labels: y, self.task_amplitude: amplitude}))
+		loss = self.sess.run(self.loss, feed_dict={self.inputs: x, self.labels: y, self.task_amplitude: amplitude})
+		if self.sess.run(self.ep) % 50 == 0:
+			print("Meta-training Reptile {} Task #{}...".format(self.name, self.sess.run(self.ep)))
+			print(loss)
 		self.sess.run(self.update_meta, feed_dict={self.inputs: x, self.labels: y, self.task_amplitude: amplitude})
 		self.sess.run(self.inc_ep)
+		return loss
 
 	def test(self, x, y, test_x, test_y, amplitude):
 		self.sess.run(self.copy_meta_to_learner)

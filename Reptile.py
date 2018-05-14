@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 
-from utils import update_target_graph, VariableState, average_vars
+from utils import update_target_graph
 
 
 class ReptileModel(object):
@@ -101,11 +101,14 @@ class ReptileModel(object):
 
 	def train(self, x, y, amplitude):
 		self.sess.run(self.copy_meta_to_learner)
-		print("Meta-training Reptile {} Task #{}...".format(self.name, self.sess.run(self.ep)))
 		self.fit(x=x, y=y, amplitude=amplitude)
-		print(self.sess.run(self.loss, feed_dict={self.inputs: x, self.labels: y, self.task_amplitude: amplitude}))
+		loss = self.sess.run(self.loss, feed_dict={self.inputs: x, self.labels: y, self.task_amplitude: amplitude})
+		if self.sess.run(self.ep) % 50 == 0:
+			print("Meta-training Reptile {} Task #{}...".format(self.name, self.sess.run(self.ep)))
+			print(loss)
 		self.sess.run(self.update_meta)
 		self.sess.run(self.inc_ep)
+		return loss
 
 	def test(self, x, y, test_x, test_y, amplitude):
 		self.sess.run(self.copy_meta_to_learner)

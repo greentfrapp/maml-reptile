@@ -2,9 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from datetime import datetime
+import json
 
 from SineTaskGenerator import SineTaskGenerator
-from Baseline import BaselineModel
+# from Baseline import BaselineModel
 from MAML import MAMLModel
 from FOMAML import FOMAMLModel
 from Reptile import ReptileModel
@@ -26,12 +27,20 @@ if __name__ == "__main__":
 		sess.run(tf.global_variables_initializer())
 		saver = tf.train.Saver()
 		
+		losses = {
+			"maml": [],
+			"fomamlv1": [],
+			"fomamlv2": [],
+			"reptile": [],
+		}
 		for i in np.arange(episodes):
 			task = task_dist.new_task()
 			x, y = task.next(k * 3)
 			for model_name, model in models.items():
-				model.train(x=x, y=y, amplitude=task.amplitude)
+				losses[model_name].append(float(model.train(x=x, y=y, amplitude=task.amplitude)))
 		saver.save(sess, save_path="./temp/")
+		with open("./temp/losses.json", 'w') as file:
+			json.dump(losses, file)
 
 		n_tests = 100
 		mean_losses = {}

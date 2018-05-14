@@ -110,10 +110,12 @@ class MAMLModel(object):
 		return self.sess.run(self.forwardprop(self.inputs, self.weights), feed_dict={self.inputs: x})
 
 	def train(self, x, y, amplitude):
-		print("Meta-training MAML {} Task #{}...".format(self.name, self.sess.run(self.ep)))
 		loss, _ = self.sess.run([self.loss, self.metatrain_op], feed_dict={self.inputs: x, self.labels: y, self.task_amplitude: amplitude})
-		print(loss)
+		if self.sess.run(self.ep) % 50 == 0:
+			print("Meta-training MAML {} Task #{}...".format(self.name, self.sess.run(self.ep)))
+			print(loss)
 		self.sess.run(self.inc_ep)
+		return loss
 
 	def test(self, x, y, test_x, test_y, amplitude):
 		losses, predictions = self.sess.run([self.eval_losses, self.eval_outputs], feed_dict={self.inputs: x, self.labels: y, self.eval_inputs: test_x, self.eval_labels: test_y, self.task_amplitude: amplitude})
