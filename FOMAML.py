@@ -16,7 +16,6 @@ class FOMAMLModel(object):
 			self.grad_steps = grad_steps
 			self.sess = sess
 			self.build_model()
-		
 
 	def build_model(self):
 		self.inputs = tf.placeholder(

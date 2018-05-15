@@ -6,7 +6,7 @@ from utils import update_target_graph
 
 class ReptileModel(object):
 
-	def __init__(self, name, sess, grad_steps=32, beta1=0):
+	def __init__(self, name, sess, train_samples=10, test_samples=10, train_gradsteps=32, test_gradsteps=32, beta1=0):
 		self.name = name
 		with tf.variable_scope(self.name):
 			self.hidden_1 = 64
@@ -14,7 +14,10 @@ class ReptileModel(object):
 			self.meta_trainer = tf.train.AdamOptimizer(learning_rate=1e-3)
 			self.beta1 = beta1
 			self.sess = sess
-			self.grad_steps = grad_steps
+			self.train_gradsteps = train_gradsteps
+			self.test_gradsteps = test_gradsteps
+			self.train_samples = train_samples
+			self.test_samples = test_samples
 			self.build_model()
 
 	def build_model(self):
@@ -81,14 +84,14 @@ class ReptileModel(object):
 		losses = []
 		outputs = []
 		if test:
-			for i in np.arange(self.grad_steps):
+			for i in np.arange(self.test_gradsteps):
 				self.sess.run(self.fresh_optimize, feed_dict={self.inputs: x, self.labels: y, self.task_amplitude: amplitude})
 				variables = self.sess.run(self.learner_vars)
 				if return_losses:
 					losses.append(self.sess.run(self.loss, feed_dict={self.inputs: test_x, self.labels: test_y, self.task_amplitude: amplitude}))
 					outputs.append(self.predict(test_x))
 		else:
-			for i in np.arange(50):
+			for i in np.arange(self.train_gradsteps):
 				self.sess.run(self.optimize, feed_dict={self.inputs: x, self.labels: y, self.task_amplitude: amplitude})
 				if return_losses:
 					losses.append(self.sess.run(self.loss, feed_dict={self.inputs: test_x, self.labels: test_y, self.task_amplitude: amplitude}))
@@ -99,16 +102,26 @@ class ReptileModel(object):
 	def predict(self, x):
 		return self.sess.run(self.outputs["learner"], feed_dict={self.inputs: x})
 
-	def train(self, x, y, amplitude):
-		self.sess.run(self.copy_meta_to_learner)
-		self.fit(x=x, y=y, amplitude=amplitude)
-		loss = self.sess.run(self.loss, feed_dict={self.inputs: x, self.labels: y, self.task_amplitude: amplitude})
-		if self.sess.run(self.ep) % 50 == 0:
-			print("Meta-training Reptile {} Task #{}...".format(self.name, self.sess.run(self.ep)))
-			print(loss)
-		self.sess.run(self.update_meta)
-		self.sess.run(self.inc_ep)
-		return loss
+	# def train(self, x, y, amplitude):
+	# 	self.sess.run(self.copy_meta_to_learner)
+	# 	self.fit(x=x, y=y, amplitude=amplitude)
+	# 	loss = self.sess.run(self.loss, feed_dict={self.inputs: x, self.labels: y, self.task_amplitude: amplitude})
+	# 	if self.sess.run(self.ep) % 50 == 0:
+	# 		print("Meta-training Reptile {} Task #{}...".format(self.name, self.sess.run(self.ep)))
+	# 		print(loss)
+	# 	self.sess.run(self.update_meta)
+	# 	self.sess.run(self.inc_ep)
+	# 	return loss
+
+	def train(self, tasks):
+		for task in tasks:
+			self.sess.run(self.copy_meta_to_learner)
+			x, y = task.next(self.train_samples)
+			self.fit(x=x, y=y, amplitude=task.amplitude)
+			learner_vars = self.sess.run(self.learner_vars)
+			print(len(learner_vars))
+			quit()
+		# self.sess.run(self.update_meta, feed_dict={self.new_theta: new_theta})
 
 	def test(self, x, y, test_x, test_y, amplitude):
 		self.sess.run(self.copy_meta_to_learner)
