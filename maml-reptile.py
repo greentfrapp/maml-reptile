@@ -20,11 +20,11 @@ flags.DEFINE_bool("test", False, "Whether to test")
 flags.DEFINE_string("savepath", "temp", "Savepath")
 
 # Train
-flags.DEFINE_integer("train_gradsteps", 32, "Number of gradient steps during training")
-flags.DEFINE_integer("train_samples", 10, "Number of training samples during training")
-flags.DEFINE_integer("train_epochs", 10000, "Number of training epochs")
-flags.DEFINE_integer("train_totalepisodes", 1000, "Number of tasks generated for training")
-flags.DEFINE_integer("train_batchsize", 10, "Training batch size")
+flags.DEFINE_integer("train_gradsteps", 64, "Number of gradient steps during training")
+flags.DEFINE_integer("train_samples", 30, "Number of training samples during training")
+flags.DEFINE_integer("train_epochs", 5, "Number of training epochs")
+flags.DEFINE_integer("train_totalepisodes", 100, "Number of tasks generated for training")
+flags.DEFINE_integer("train_batchsize", 1, "Training batch size")
 
 # Test
 flags.DEFINE_integer("test_gradsteps", None, "Number of gradient steps during testing (if different from training)")
@@ -70,23 +70,24 @@ def main():
 			}
 			n_batches = FLAGS.train_totalepisodes / FLAGS.train_batchsize
 			for i in np.arange(FLAGS.train_epochs):
+				print("Epoch #{}...".format(i + 1))
 				np.random.shuffle(tasks)
-				for j in np.arange(n_batches):
+				for j in np.arange(int(n_batches)):
+					print("\tBatch #{}...".format(j + 1))
 					start = int(j * FLAGS.train_batchsize)
 					end = int(start + FLAGS.train_batchsize)
 					minibatch = tasks[start:end]
 					for model_name, model in models.items():
 						model.train(tasks=minibatch)
 
-
-			for i in np.arange(episodes):
-				task = task_dist.new_task()
-				x, y = task.next(k * 3)
-				for model_name, model in models.items():
-					losses[model_name].append(float(model.train(x=x, y=y, amplitude=task.amplitude)))
-			saver.save(sess, save_path=os.path.join(FLAGS.savepath, "./"))
-			with open(os.path.join(FLAGS.savepath, "loss.json"), 'w') as file:
-				json.dump(losses, file)
+			# for i in np.arange(episodes):
+			# 	task = task_dist.new_task()
+			# 	x, y = task.next(k * 3)
+			# 	for model_name, model in models.items():
+			# 		losses[model_name].append(float(model.train(x=x, y=y, amplitude=task.amplitude)))
+			# saver.save(sess, save_path=os.path.join(FLAGS.savepath, "./"))
+			# with open(os.path.join(FLAGS.savepath, "loss.json"), 'w') as file:
+			# 	json.dump(losses, file)
 
 		n_tests = 1
 		mean_losses = {}
@@ -95,7 +96,7 @@ def main():
 		for i in np.arange(n_tests):
 			print("Testing with Task #{}".format(i + 1))
 			test = task_dist.new_task()
-			x, y = test.next(k)
+			x, y = test.next(FLAGS.test_samples or FLAGS.train_samples)
 			eval_x, eval_y = test.eval()
 			for model_name, model in models.items():
 				if model_name not in mean_losses:

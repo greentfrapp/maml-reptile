@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 
-from utils import update_target_graph
+from utils import update_target_graph, average_learner_vars, VariableState
 
 
 class ReptileModel(object):
@@ -19,6 +19,7 @@ class ReptileModel(object):
 			self.train_samples = train_samples
 			self.test_samples = test_samples
 			self.build_model()
+			self._meta_vars = VariableState(self.sess, tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, "{}/meta".format(self.name)))
 
 	def build_model(self):
 		self.inputs = tf.placeholder(
@@ -114,13 +115,16 @@ class ReptileModel(object):
 	# 	return loss
 
 	def train(self, tasks):
-		for task in tasks:
+		learner_vars_buffer = []
+		for i, task in enumerate(tasks):
 			self.sess.run(self.copy_meta_to_learner)
 			x, y = task.next(self.train_samples)
-			self.fit(x=x, y=y, amplitude=task.amplitude)
+			losses, _ = self.fit(x=x, y=y, amplitude=task.amplitude, return_losses=True, test_x=x, test_y=y)
 			learner_vars = self.sess.run(self.learner_vars)
-			print(len(learner_vars))
-			quit()
+			learner_vars_buffer.append(learner_vars)
+		avg_learner_vars = average_learner_vars(learner_vars_buffer)
+		self._meta_vars.import_variables(avg_learner_vars)
+			
 		# self.sess.run(self.update_meta, feed_dict={self.new_theta: new_theta})
 
 	def test(self, x, y, test_x, test_y, amplitude):
