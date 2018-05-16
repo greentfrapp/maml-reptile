@@ -73,12 +73,9 @@ class ReptileModel(object):
 		self.optimize = tf.train.AdamOptimizer(learning_rate=1e-2, beta1=self.beta1).minimize(self.loss)
 		self.fresh_optimize = tf.train.AdamOptimizer(learning_rate=1e-2).minimize(self.loss)
 
-		local_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, self.name)
+		# local_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, self.name)
 		self.learner_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, "{}/learner".format(self.name))
-		self.meta_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, "{}/meta".format(self.name))
-		self.gradients = tf.gradients(self.loss, self.learner_vars)
-		self.reptile_grad = [self.meta_vars[i] - learner_var for i, learner_var in enumerate(self.learner_vars)]
-		self.update_meta = self.meta_trainer.apply_gradients(zip(self.reptile_grad, self.meta_vars))
+		# self.meta_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, "{}/meta".format(self.name))
 		self.copy_meta_to_learner = update_target_graph("{}/meta".format(self.name), "{}/learner".format(self.name))
 
 	def fit(self, x, y, test_x=[], test_y=[], test=False, return_losses=False, amplitude=1.):
@@ -103,17 +100,6 @@ class ReptileModel(object):
 	def predict(self, x):
 		return self.sess.run(self.outputs["learner"], feed_dict={self.inputs: x})
 
-	# def train(self, x, y, amplitude):
-	# 	self.sess.run(self.copy_meta_to_learner)
-	# 	self.fit(x=x, y=y, amplitude=amplitude)
-	# 	loss = self.sess.run(self.loss, feed_dict={self.inputs: x, self.labels: y, self.task_amplitude: amplitude})
-	# 	if self.sess.run(self.ep) % 50 == 0:
-	# 		print("Meta-training Reptile {} Task #{}...".format(self.name, self.sess.run(self.ep)))
-	# 		print(loss)
-	# 	self.sess.run(self.update_meta)
-	# 	self.sess.run(self.inc_ep)
-	# 	return loss
-
 	def train(self, tasks):
 		learner_vars_buffer = []
 		for i, task in enumerate(tasks):
@@ -124,8 +110,6 @@ class ReptileModel(object):
 			learner_vars_buffer.append(learner_vars)
 		avg_learner_vars = average_learner_vars(learner_vars_buffer)
 		self._meta_vars.import_variables(avg_learner_vars)
-			
-		# self.sess.run(self.update_meta, feed_dict={self.new_theta: new_theta})
 
 	def test(self, x, y, test_x, test_y, amplitude):
 		self.sess.run(self.copy_meta_to_learner)
