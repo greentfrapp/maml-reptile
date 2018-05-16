@@ -22,9 +22,9 @@ flags.DEFINE_string("savepath", "temp", "Savepath")
 # Train
 flags.DEFINE_integer("train_gradsteps", 64, "Number of gradient steps during training")
 flags.DEFINE_integer("train_samples", 30, "Number of training samples during training")
-flags.DEFINE_integer("train_epochs", 5, "Number of training epochs")
-flags.DEFINE_integer("train_totalepisodes", 100, "Number of tasks generated for training")
-flags.DEFINE_integer("train_batchsize", 1, "Training batch size")
+flags.DEFINE_integer("train_epochs", 100, "Number of training epochs")
+flags.DEFINE_integer("train_totalepisodes", 1000, "Number of tasks generated for training")
+flags.DEFINE_integer("train_batchsize", 10, "Training batch size")
 
 # Test
 flags.DEFINE_integer("test_gradsteps", None, "Number of gradient steps during testing (if different from training)")
