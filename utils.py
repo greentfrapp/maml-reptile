@@ -16,17 +16,6 @@ def average_learner_vars(var_buffer):
 		res.append(np.mean(variables, axis=0))
 	return res
 
-	# output = []
-	# for i, variables in enumerate(var_buffer):
-	# 	for j, element in enumerate(variables):
-	# 		if i == 0:
-	# 			output.append([element])
-	# 		else:
-	# 			output[j].append(element)
-	# for i, element in enumerate(output):
-	# 	output[i] = np.mean(element, axis=0)
-	# return output
-
 class VariableState:
 	"""
 	Manage the state of a set of variables.
